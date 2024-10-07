@@ -1,0 +1,73 @@
+[project]
+name = "packet-sender"
+version = "1.0"
+authors = [
+  { name="Darius Sirvidas", email="darius.sirvidas@cujo.com" },
+]
+description = "A command line interface for scapy"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "scapy==2.6.0",
+    "json-type-hints==1.2",
+    "rich==13.8.1",
+]
+
+[project.optional-dependencies]
+build = ["pyinstaller==6.10.0"]
+lint = [
+    "ruff==0.6.8",
+    "pyright==1.1.383",
+]
+license = [
+    "pip-tools==7.4.1",
+    "third-party-license-file-generator==2024.8.23",
+]
+
+[project.urls]
+Homepage = "https://github.com/cujoai/packet-sender"
+
+[tool.ruff]
+lint.select = ["ARG", "E", "F", "I", "PL", "RUF", "SIM", "UP"]
+lint.ignore = ["PLR0913"] # too many function args
+target-version = "py312"
+line-length = 100
+
+[tool.pyright]
+pythonVersion = "3.12"
+
+reportCallInDefaultInitializer = true
+reportDeprecated = true
+reportFunctionMemberAccess = true
+reportImportCycles = true
+reportIncompatibleMethodOverride = true
+reportIncompatibleVariableOverride = true
+reportInconsistentConstructor = true
+reportMatchNotExhaustive = true
+reportMissingSuperCall = true
+reportOverlappingOverload = true
+reportPropertyTypeMismatch = true
+reportShadowedImports = true
+reportTypeCommentUsage = true
+reportUnnecessaryCast = true
+reportUnnecessaryComparison = true
+reportUnnecessaryContains = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUntypedBaseClass = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
+reportUntypedNamedTuple = true
+strictDictionaryInference = true
+strictListInference = true
+strictSetInference = true
+reportUnknownLambdaType = true
+reportUnknownMemberType = true
+reportUnknownParameterType = true
