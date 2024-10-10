@@ -2,12 +2,23 @@ from collections.abc import Callable
 from typing import cast
 
 import json_hints
-import scapy.layers.all
+import scapy.layers.dhcp
+import scapy.layers.dhcp6
+import scapy.layers.dns
+import scapy.layers.http
+import scapy.layers.inet
+import scapy.layers.inet6
+import scapy.layers.l2
+import scapy.layers.tls.all
+from scapy.config import conf
 from scapy.fields import FlagValue
 from scapy.packet import Packet
-from scapy.volatile import RandNum
+from scapy.volatile import RandInt, RandShort
 
-layers = {k: v for k, v in scapy.layers.all.__dict__.items() if isinstance(v, type)}
+RANDOM_NUMBERS = [RandInt, RandShort]
+SCAPY_TYPES = {layer.__name__: layer for layer in conf.layers}
+for rand_num in RANDOM_NUMBERS:
+    SCAPY_TYPES[rand_num.__name__] = rand_num
 
 
 def encode_layer(obj: object) -> object:
@@ -21,7 +32,7 @@ def encode_layer(obj: object) -> object:
         return {"__type__": class_name, "__data__": layer.fields}
     if isinstance(obj, FlagValue):
         return obj.value
-    if issubclass(object_class, RandNum):
+    if object_class in RANDOM_NUMBERS:
         return {"__type__": class_name}
     return obj
 
@@ -38,7 +49,7 @@ def layer_list_to_packet(layer_list: list[Packet]) -> Packet:
 
 
 def json_to_packet(json_str: str) -> Packet:
-    layer_list = json_hints.loads(json_str, hinted_types=layers)
+    layer_list = json_hints.loads(json_str, hinted_types=SCAPY_TYPES)
     assert isinstance(layer_list, list) and len(layer_list) > 1, "packet is not a list of layers"
     for layer in layer_list:
         assert issubclass(type(layer), Packet), f"{type(layer).__name__} is not a layer"
@@ -50,7 +61,7 @@ def packet_to_json(pkt: Packet) -> str:
 
 
 def command_to_packet(cmd: str) -> Packet:
-    return eval(cmd.encode(), layers)
+    return eval(cmd.encode(), SCAPY_TYPES)
 
 
 def packet_to_dict(packet: Packet, minimize: bool = False):
@@ -64,7 +75,7 @@ def json_to_filter(json_str: str) -> Callable[[Packet], bool]:
     assert isinstance(_filter, dict), "filter is not a dict"
     for _layer in _filter:
         assert isinstance(_filter[_layer], dict), f"filter[{_layer}] is not a dict"
-        assert _layer in layers, f"'{_layer}' is not a valid layer"
+        assert _layer in SCAPY_TYPES, f"'{_layer}' is not a valid layer"
 
     def filter_function(packet: Packet) -> bool:
         for layer in _filter:
