@@ -6,8 +6,6 @@ from contextlib import contextmanager
 
 import arg_types
 import convert
-from rich.console import Console
-from rich.pretty import pprint
 from scapy.packet import Packet
 from scapy.sendrecv import sendp, sniff, srp1
 
@@ -57,6 +55,9 @@ def _sr(
 
 
 def _encode(pkt: Packet, minimize: bool):
+    from rich.console import Console
+    from rich.pretty import pprint
+
     pkt_dict = convert.packet_to_dict(packet=pkt, minimize=minimize)
     pprint(pkt_dict, console=Console(width=92), indent_guides=False)
 
