@@ -1,3 +1,4 @@
+import inspect
 from collections.abc import Callable
 from typing import cast
 
@@ -10,12 +11,13 @@ import scapy.layers.inet
 import scapy.layers.inet6
 import scapy.layers.l2
 import scapy.layers.tls.all
+from scapy.base_classes import Net
 from scapy.config import conf
 from scapy.fields import FlagValue
 from scapy.packet import Packet
-from scapy.volatile import RandInt, RandShort
+from scapy.volatile import RandInt, RandNum, RandShort
 
-RANDOM_NUMBERS = [RandInt, RandShort]
+RANDOM_NUMBERS = [RandInt, RandShort, RandNum]
 SCAPY_TYPES = {layer.__name__: layer for layer in conf.layers}
 for rand_num in RANDOM_NUMBERS:
     SCAPY_TYPES[rand_num.__name__] = rand_num
@@ -30,11 +32,20 @@ def encode_layer(obj: object) -> object:
             if field in layer.fields:
                 layer.delfieldval(field)
         return {"__type__": class_name, "__data__": layer.fields}
-    if isinstance(obj, FlagValue):
-        return obj.value
     if object_class in RANDOM_NUMBERS:
+        init_args = inspect.signature(object_class).parameters.keys()
+        if data := {key: getattr(obj, key) for key in init_args}:
+            return {"__type__": class_name, "__data__": data}
         return {"__type__": class_name}
     return obj
+
+
+def encode_simple_types(obj: object) -> object:
+    if isinstance(obj, FlagValue):
+        return obj.value
+    if isinstance(obj, Net):
+        return obj.net
+    raise TypeError(f"{type(obj)} is not JSON serializable")
 
 
 def packet_to_layer_list(pkt: Packet) -> list[Packet]:
@@ -57,7 +68,9 @@ def json_to_packet(json_str: str) -> Packet:
 
 
 def packet_to_json(pkt: Packet) -> str:
-    return json_hints.dumps(packet_to_layer_list(pkt), encode_types=encode_layer)
+    return json_hints.dumps(
+        packet_to_layer_list(pkt), encode_types=encode_layer, default=encode_simple_types
+    )
 
 
 def command_to_packet(cmd: str) -> Packet:
