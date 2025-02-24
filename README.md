@@ -40,3 +40,13 @@ packet-sender encode cmd "Ether(dst='ff:ff:ff:ff:ff:ff', src='6c:c7:ec:24:48:7f'
     }
 ]
 ```
+### Building packet-sender
+use Docker to build packet-sender on Debian bookworm. The output will be compressed as tar.gz and named according to the machine hardware name (`uname -m`)
+1. build Dockerfile.builder
+    ```bash
+    sudo docker build . -f Dockerfile.builder -t packet-sender-builder
+    ```
+2. run the builder with the packet-sender root directory mounted on /src
+    ```bash
+    sudo docker run -v "$(pwd):/src" packet-sender-builder
+    ```
