@@ -1,19 +1,32 @@
 from argparse import ArgumentTypeError
 from collections.abc import Callable
+from enum import Enum
 from json import JSONDecodeError
 from os.path import isfile
 
 from convert import command_to_packet, json_to_filter, json_to_packet
 from scapy.arch.common import compile_filter
 from scapy.error import Scapy_Exception
-from scapy.interfaces import get_if_list
+from scapy.interfaces import get_if_list, resolve_iface
 from scapy.packet import Packet
 from scapy.utils import rdpcap
+
+
+class SupportedInterfaceTypes(Enum):
+    ARPHRD_ETHER = 1
+    ARPHRD_IEEE80211 = 801
+    ARPHRD_IEEE80211_RADIOTAP = 803
+
+    def __str__(self):
+        return f"{self.name} ({self.value})"
 
 
 def interface(iface: str) -> str:
     if iface not in get_if_list():
         raise ArgumentTypeError(f"interface '{iface}' does not exist")
+    _iface = resolve_iface(iface)
+    if _iface.type not in SupportedInterfaceTypes:
+        raise ArgumentTypeError(f"interface type {_iface.type} is not supported")
     return iface
 
 

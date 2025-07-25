@@ -66,7 +66,11 @@ if __name__ == "__main__":
     # shared argument parsers
     iface_parser = argparse.ArgumentParser(add_help=False)
     iface_parser.add_argument(
-        "-i", "--iface", type=arg_types.interface, help="use the specified network interface"
+        "-i",
+        "--iface",
+        type=arg_types.interface,
+        help="use the specified network interface. Supported interface types: "
+        f"{', '.join([str(e) for e in arg_types.SupportedInterfaceTypes])}",
     )
     minimize_parser = argparse.ArgumentParser(add_help=False)
     minimize_parser.add_argument(
