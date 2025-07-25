@@ -27,6 +27,8 @@ def interface(iface: str) -> str:
     _iface = resolve_iface(iface)
     if _iface.type not in SupportedInterfaceTypes:
         raise ArgumentTypeError(f"interface type {_iface.type} is not supported")
+    if "UP" not in _iface.flags:
+        raise ArgumentTypeError(f"interface '{iface}' is DOWN")
     return iface
 
 
