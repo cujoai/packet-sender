@@ -48,7 +48,7 @@ def unsigned_float(float_str: str) -> float:
 
 def bpf(bpf_str: str) -> str:
     try:
-        compile_filter(bpf_str)
+        compile_filter(bpf_str, iface="lo")
     except Scapy_Exception:
         raise ArgumentTypeError(f"invalid BPF filter: '{bpf_str}'")
     return bpf_str
