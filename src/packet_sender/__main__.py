@@ -58,8 +58,8 @@ def _sr(
 
 
 def _encode(pkt: Packet, minimize: bool):
-    from rich.console import Console
-    from rich.pretty import pprint
+    from rich.console import Console  # noqa: PLC0415
+    from rich.pretty import pprint  # noqa: PLC0415
 
     pkt_dict = convert.packet_to_dict(packet=pkt, minimize=minimize)
     pprint(pkt_dict, console=Console(width=92), indent_guides=False)
