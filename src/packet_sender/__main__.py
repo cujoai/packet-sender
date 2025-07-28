@@ -3,9 +3,12 @@ import sys
 import time
 from collections.abc import Callable
 from contextlib import contextmanager
+from typing import cast
 
 import arg_types
 import convert
+from scapy.config import conf
+from scapy.interfaces import NetworkInterface
 from scapy.packet import Packet
 from scapy.sendrecv import sendp, sniff, srp1
 
@@ -193,6 +196,13 @@ if __name__ == "__main__":
     action = args.pop("action", None)
     if action:
         args.pop("version")
+        if action != _encode and not args.get("iface"):
+            default_iface = cast(NetworkInterface, conf.iface)  # type: ignore
+            if default_iface.type not in arg_types.SupportedInterfaceTypes:
+                sys.exit(
+                    f"error: Default interface '{default_iface}' type {default_iface.type} "
+                    "is not supported"
+                )
         action(**args)
     elif args["version"]:
         print("version: 1.0")
