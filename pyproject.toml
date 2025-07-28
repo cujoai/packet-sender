@@ -1,6 +1,6 @@
 [project]
 name = "packet-sender"
-version = "1.0"
+version = "1.1"
 authors = [
   { name="Darius Sirvidas", email="darius.sirvidas@cujo.com" },
 ]
