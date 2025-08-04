@@ -15,10 +15,11 @@ from scapy.base_classes import Net
 from scapy.config import conf
 from scapy.fields import FlagValue
 from scapy.packet import Packet
-from scapy.volatile import RandInt, RandNum, RandShort
+from scapy.volatile import RandInt, RandMAC, RandNum, RandShort
 
 RANDOM_NUMBERS = [RandInt, RandShort, RandNum]
 SCAPY_TYPES = {layer.__name__: layer for layer in conf.layers}
+SCAPY_TYPES["RandMAC"] = RandMAC
 for rand_num in RANDOM_NUMBERS:
     SCAPY_TYPES[rand_num.__name__] = rand_num
 
@@ -36,6 +37,10 @@ def encode_layer(obj: object) -> object:
         init_args = inspect.signature(object_class).parameters.keys()
         if data := {key: getattr(obj, key) for key in init_args}:
             return {"__type__": class_name, "__data__": data}
+        return {"__type__": class_name}
+    if object_class == RandMAC:
+        if (template := getattr(obj, "_template")) != "*":
+            return {"__type__": class_name, "__data__": template}
         return {"__type__": class_name}
     return obj
 
