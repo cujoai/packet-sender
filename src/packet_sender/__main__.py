@@ -197,7 +197,7 @@ if __name__ == "__main__":
     if action:
         args.pop("version")
         if action != _encode and not args.get("iface"):
-            default_iface = cast(NetworkInterface, conf.iface)  # type: ignore
+            default_iface = cast(NetworkInterface, conf.iface)
             if default_iface.type not in arg_types.SupportedInterfaceTypes:
                 sys.exit(
                     f"error: Default interface '{default_iface}' type {default_iface.type} "

@@ -40,6 +40,15 @@ packet-sender encode cmd "Ether(dst='ff:ff:ff:ff:ff:ff', src='6c:c7:ec:24:48:7f'
     }
 ]
 ```
+### Linting
+1. install the linters
+    ```bash
+    pip install .[lint] && pip uninstall packet-sender 
+    ```
+2. run linters
+    ```bash
+    ruff format && ruff check --fix && ty check
+    ```
 ### Building packet-sender
 use Docker to build packet-sender on Debian bookworm. The output will be compressed as tar.gz and named according to the machine hardware name (`uname -m`)
 1. build Dockerfile.builder
