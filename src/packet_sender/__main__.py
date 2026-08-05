@@ -205,7 +205,7 @@ if __name__ == "__main__":
                 )
         action(**args)
     elif args["version"]:
-        print("version: 1.2")
+        print("version: 1.3")
     else:
         main_parser.print_help()
     sys.exit()

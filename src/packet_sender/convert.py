@@ -15,13 +15,21 @@ from scapy.base_classes import Net
 from scapy.config import conf
 from scapy.fields import FlagValue
 from scapy.packet import Packet
-from scapy.volatile import RandInt, RandMAC, RandNum, RandShort
+from scapy.volatile import (
+    RandByte,
+    RandInt,
+    RandIP,
+    RandIP6,
+    RandMAC,
+    RandNum,
+    RandShort,
+    RandString,
+)
 
-RANDOM_NUMBERS = [RandInt, RandShort, RandNum]
 SCAPY_TYPES = {layer.__name__: layer for layer in conf.layers}
-SCAPY_TYPES["RandMAC"] = RandMAC
-for rand_num in RANDOM_NUMBERS:
-    SCAPY_TYPES[rand_num.__name__] = rand_num
+RANDOM_TYPES = [RandByte, RandInt, RandIP, RandIP6, RandMAC, RandNum, RandShort, RandString]
+for rand_type in RANDOM_TYPES:
+    SCAPY_TYPES[rand_type.__name__] = rand_type
 
 
 def encode_layer(obj: object) -> object:
@@ -33,14 +41,15 @@ def encode_layer(obj: object) -> object:
             if field in layer.fields:
                 layer.delfieldval(field)
         return {"__type__": class_name, "__data__": layer.fields}
-    if object_class in RANDOM_NUMBERS:
-        init_args = inspect.signature(object_class).parameters.keys()
-        if data := {key: getattr(obj, key) for key in init_args}:
+    if object_class in RANDOM_TYPES:
+        init_args = inspect.signature(object_class).parameters.values()
+        # get object attributes that match __init__ arguments and are not using default values
+        if data := {
+            arg.name: getattr(obj, arg.name)
+            for arg in init_args
+            if getattr(obj, arg.name, arg.default) != arg.default
+        }:
             return {"__type__": class_name, "__data__": data}
-        return {"__type__": class_name}
-    if object_class == RandMAC:
-        if (template := getattr(obj, "_template")) != "*":
-            return {"__type__": class_name, "__data__": template}
         return {"__type__": class_name}
     return obj
 
